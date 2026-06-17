@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bank_postgres
+    environment:
+      POSTGRES_DB: digital_bank
+      POSTGRES_USER: bank_user
+      POSTGRES_PASSWORD: bank_password
+    ports:
+      - "5432:5432"
+    volumes:
+      # Como o init.sql agora está na mesma pasta que este docker-compose, usamos ./init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bank_user -d digital_bank"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: bank_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: bank_mq_user
+      RABBITMQ_DEFAULT_PASS: bank_mq_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  digital-bank-api:
+    build:
+      # O contexto agora aponta para fora da pasta atual (..) e entra na pasta da API
+      context: ../banco-digital-cwi
+      dockerfile: Dockerfile
+    container_name: digital_bank_api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/digital_bank
+      - SPRING_DATASOURCE_USERNAME=bank_user
+      - SPRING_DATASOURCE_PASSWORD=bank_password
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=bank_mq_user
+      - SPRING_RABBITMQ_PASSWORD=bank_mq_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy

@@ -1,0 +1,119 @@
+{
+  "info": {
+    "_postman_id": "d339ab4e-0549-477d-b09d-e2cfb00e02ce",
+    "name": "cwi-digitalbank",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "4634536"
+  },
+  "item": [
+    {
+      "name": "Conta",
+      "item": [
+        {
+          "name": "listar-contas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/v1/contas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "v1",
+                "contas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar conta por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/v1/contas/CONTA-001",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "v1",
+                "contas",
+                "CONTA-001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar conta inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/v1/contas/CONTA-9990",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "v1",
+                "contas",
+                "CONTA-9990"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cadastrar uma nova conta",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": \"CONTA-011\",\r\n  \"nome\": \"Timothee Chalamet\",\r\n  \"email\": \"timothee@cinema.com\",\r\n  \"saldoInicial\": 10000.00\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/v1/contas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "v1",
+                "contas"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transferencias",
+      "item": [
+        {
+          "name": "Transferência com Sucesso",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
