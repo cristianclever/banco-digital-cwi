@@ -20,6 +20,8 @@ Durante o desenho da solução, avaliei três caminhos para proteger o saldo dos
 Para resolver isso, criei uma **ordenação lógica por ID** no código antes de aplicar o lock. O sistema sempre bloqueia primeiro a conta com o menor ID alfanumérico, quebrando o ciclo de interdependência de forma nativa.
 
 ### 2. Garantia de Entrega: Padrão Transactional Outbox (https://docs.aws.amazon.com/pt_br/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)
+Em requisitos Funcionais, item 'C' entendi que existe um evento do tipo push para o cliente. Para simular esse cenario utilizei o RabbitMQ para desacoplar o envio da mensagem do processamento em si.
+
 * **O Problema:** Se o sistema atualizar o saldo no banco e logo em seguida tentar enviar a mensagem para a fila do RabbitMQ, uma piscada na rede ou uma queda do broker de mensageria faria a mensagem sumir, deixando o cliente sem notificação.
 * **A Solução:** Adotei o padrão **Transactional Outbox**. Em vez de falar com o RabbitMQ direto no fluxo da transferência, o evento é gravada em uma tabela chamada `outbox_events` **dentro da mesma transação do banco de dados** que altera os saldos. Se o banco falhar, tudo sofre rollback. Se o banco persistir, o evento está salvo com segurança.
 
@@ -44,16 +46,16 @@ O projeto está organizado da seguinte forma:
 
 banco-digital-cwi
 │
-├── ambiente/                  # Arquivos de infraestrutura e banco
-│   ├── docker-compose.yml     # Orquestrador dos containers
-│   └── init.sql               # Script de tabelas e carga inicial de dados
+├── ambiente/                   Arquivos de infraestrutura e banco
+│   ├── docker-compose.yml      Orquestrador dos containers
+│   └── init.sql                Script de tabelas e carga inicial de dados
 │
-└── banco-digital-cwi/         # Raiz da aplicação Java (Spring Boot)
-│   └── src/                   # Código fonte do projeto
-│   └── Dockerfile             # Build multistage da imagem Java 21
-│   └── pom.xml                # Gerenciador de dependências Maven
+└── banco-digital-cwi/          Raiz da aplicação Java (Spring Boot)
+│   └── src/                    Código fonte do projeto
+│   └── Dockerfile              Build multistage da imagem Java 21
+│   └── pom.xml                 Gerenciador de dependências Maven
 │	
-└── postman/                   # Collection do postman exportada
+└── postman/                    Collection do postman exportada
 	
 ---
 
