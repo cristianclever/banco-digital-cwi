@@ -6,7 +6,7 @@ Esta é uma API REST funcional, desenvolvida em **Spring Boot 3.x** e **Java 21*
 
 ## Decisões de Design e Arquitetura Adotadas
 
-O desafio deste projeto não é fazer uma conta de menos em um saldo, mas sim garantir que o sistema não perca dados e não fique inconsistente quando centenas de requisições baterem no mesmo milissegundo ou quando a rede falhar. 
+O desafio deste projeto não é fazer uma conta de menos em um saldo, mas sim garantir que o sistema não perca dados e não fique inconsistente quando centenas de requisições baterem no mesmo milissegundo ou quando a rede falhar.
 Abaixo estão as justificativas das tecnologias e padrões que escolhi:
 
 ### 1. O Dilema do Bloqueio: Uso do Lock Pessimista
@@ -16,10 +16,12 @@ Durante o desenho da solução, avaliei três caminhos para proteger o saldo dos
 * **Trava Distribuída com Redis :** É uma excelente idéia, mas traria uma complexidade operacional e de infraestrutura desnecessária para este escopo.
 * **A Escolha: Lock Pessimista de Escrita (`FOR UPDATE`):** O PostgreSQL já possui um motor de travas nativo e extremamente rápido. O Lock Pessimista garante de forma estrita que a primeira requisição "tranca" a conta no banco e as outras esperam de forma ordenada por milissegundos. Nenhuma transação inválida sequer começa.
 
-> **Prevenção de Deadlocks:** Se o Usuário A transferir para o B e o B transferir para o A no mesmo instante, os locks cruzados poderiam travar o banco de dados (*Deadlock*). 
+> **Prevenção de Deadlocks:** Se o Usuário A transferir para o B e o B transferir para o A no mesmo instante, os locks cruzados poderiam travar o banco de dados (*Deadlock*).
 Para resolver isso, criei uma **ordenação lógica por ID** no código antes de aplicar o lock. O sistema sempre bloqueia primeiro a conta com o menor ID alfanumérico, quebrando o ciclo de interdependência de forma nativa.
 
 ### 2. Garantia de Entrega: Padrão Transactional Outbox (https://docs.aws.amazon.com/pt_br/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)
+Em requisitos Funcionais, item 'C' entendi que existe um evento do tipo push para o cliente. Para simular esse cenario utilizei o RabbitMQ para desacoplar o envio da mensagem do processamento em si.
+
 * **O Problema:** Se o sistema atualizar o saldo no banco e logo em seguida tentar enviar a mensagem para a fila do RabbitMQ, uma piscada na rede ou uma queda do broker de mensageria faria a mensagem sumir, deixando o cliente sem notificação.
 * **A Solução:** Adotei o padrão **Transactional Outbox**. Em vez de falar com o RabbitMQ direto no fluxo da transferência, o evento é gravada em uma tabela chamada `outbox_events` **dentro da mesma transação do banco de dados** que altera os saldos. Se o banco falhar, tudo sofre rollback. Se o banco persistir, o evento está salvo com segurança.
 
@@ -43,26 +45,56 @@ Para resolver isso, criei uma **ordenação lógica por ID** no código antes de
 O projeto está organizado da seguinte forma:
 
 ```text
-├── ambiente/                  # Arquivos de infraestrutura e banco
-│   ├── docker-compose.yml     # Orquestrador dos containers
-│   └── init.sql               # Script de tabelas e carga inicial de dados
+banco-digital-cwi
 │
-└── [pasta-da-sua-api]/        # Raiz da aplicação Java (Spring Boot)
-    ├── src/                   # Código fonte do projeto
-    ├── Dockerfile             # Build multistage da imagem Java 21
-    └── pom.xml                # Gerenciador de dependências Maven
-	
+├── ambiente/                   Arquivos de infraestrutura e banco
+│   ├── docker-compose.yml      Orquestrador dos containers
+│   └── init.sql                Script de tabelas e carga inicial de dados
+│
+└── banco-digital-cwi/          Raiz da aplicação Java (Spring Boot)
+│   └── src/                    Código fonte do projeto
+│   └── Dockerfile              Build multistage da imagem Java 21
+│   └── pom.xml                 Gerenciador de dependências Maven
+│	
+└── postman/                    Collection do postman exportada que pode ser utilizada para realizar os testes
+```
+
 ---
 
 ## Como Rodar o Projeto	
 
 Pré-requisitos
-Para a execução padrão do projeto, o único pré-requisito é ter o Docker e o Docker Compose instalados e rodando na sua máquina. Graças ao empacotamento em Multistage, não é necessário configurar o Java ou o Maven localmente.
+Para a execução padrão do projeto, o único pré-requisito é ter o Docker e o Docker Compose instalados e rodando na sua máquina.   
+Graças ao empacotamento em Multistage, não é necessário configurar o Java ou o Maven localmente.  
+
 
 Passo 1: Inicializar o Ecossistema Completo
 Abra o seu terminal, navegue até a pasta dedicada ao ambiente e suba os containers:
 
 Bash
 dentro da pasta "ambiente" execute o comando abaixo. Será construida a imagem base da aplicação, junto com o rabbit e o PostgreSQL. 
-docker compose up --build
 
+```text
+docker compose up --build
+```
+
+---
+
+## Links Úteis para Testes e Monitoramento
+
+Assim que os logs do terminal indicarem que a API está de pé, os seguintes serviços estarão disponíveis:
+
+Documentação Swagger (OpenAPI): http://localhost:8080/swagger-ui/index.html
+
+Painel de Controle do RabbitMQ: http://localhost:15672
+Usuário: bank_mq_user
+Senha: bank_mq_password
+
+
+Actuator (Monitoramento da Aplicação): http://localhost:8080/actuator
+
+---
+
+## Como Testar (Collection do Postman Incluída)
+Para facilitar a sua validação das regras de negócio e do comportamento sob falhas, disponibilizei os arquivos de testes prontos na pasta /postman  
+De forma alternativa é possivel utilizar o Swagger para realizar os testes manuais, ou até mesmo ferramentas como Insomnia ou cURL.

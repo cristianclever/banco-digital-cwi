@@ -44,6 +44,7 @@ Em requisitos Funcionais, item 'C' entendi que existe um evento do tipo push par
 
 O projeto está organizado da seguinte forma:
 
+```text
 banco-digital-cwi
 │
 ├── ambiente/                   Arquivos de infraestrutura e banco
