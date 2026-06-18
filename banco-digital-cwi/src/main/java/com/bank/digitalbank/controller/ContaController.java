@@ -5,6 +5,7 @@ import com.bank.digitalbank.domain.model.Conta;
 import com.bank.digitalbank.domain.service.ContaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class ContaController {
 
     @PostMapping
     @Operation(summary = "Cadastra uma nova conta", description = "Permite a criação de uma conta com saldo inicial")
-    public ResponseEntity<Conta> cadastrar(@RequestBody ContaRequest request) {
+    public ResponseEntity<Conta> cadastrar(@Valid  @RequestBody ContaRequest request) {
         Conta novaConta = contaService.cadastrar(
                 request.id(),
                 request.nome(),

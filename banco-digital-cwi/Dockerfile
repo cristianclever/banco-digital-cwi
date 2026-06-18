@@ -18,6 +18,7 @@ COPY --from=build /app/target/digital-bank-0.0.1-SNAPSHOT.jar app.jar
 
 # Configurações de otimização da JVM para containers
 ENV JAVA_OPTS="-XX:+UseG1GC -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+ENV APP_OUTBOX_PROCESSING_DELAY=1000
 
 EXPOSE 8080
 

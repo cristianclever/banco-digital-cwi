@@ -5,7 +5,7 @@ services:
     image: postgres:16-alpine
     container_name: bank_postgres
     environment:
-      POSTGRES_DB: digital_bank
+      POSTGRES_DB: bank_db
       POSTGRES_USER: bank_user
       POSTGRES_PASSWORD: bank_password
     ports:
@@ -14,7 +14,7 @@ services:
       # Como o init.sql agora está na mesma pasta que este docker-compose, usamos ./init.sql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bank_user -d digital_bank"]
+      test: ["CMD-SHELL", "pg_isready -U bank_user -d bank_db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -43,7 +43,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/digital_bank
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bank_db
       - SPRING_DATASOURCE_USERNAME=bank_user
       - SPRING_DATASOURCE_PASSWORD=bank_password
       - SPRING_RABBITMQ_HOST=rabbitmq

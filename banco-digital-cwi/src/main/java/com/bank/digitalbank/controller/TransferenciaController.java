@@ -4,6 +4,7 @@ import com.bank.digitalbank.controller.dto.TransferenciaRequest;
 import com.bank.digitalbank.domain.service.TransferenciaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ public class TransferenciaController {
 
     @PostMapping
     @Operation(summary = "Executa uma transferência entre contas", description = "Processa o débito/crédito atomicamente e integra com o Transactional Outbox")
-    public ResponseEntity<Map<String, String>> transferir(@RequestBody TransferenciaRequest request) {
+    public ResponseEntity<Map<String, String>> transferir(@Valid  @RequestBody TransferenciaRequest request) {
         transferenciaService.transferir(
                 request.contaOrigemId(),
                 request.contaDestinoId(),

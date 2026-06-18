@@ -23,10 +23,11 @@ public class OutboxQueueScheduler {
     private final RabbitTemplate rabbitTemplate;
 
     /**
-     * Executa a cada 1000 milissegundos (1 segundo) após o término da última execução.
+     * Executa a cada 60000 milissegundos (1 minuto) após o término da última execução.
      * Abre uma transação para manter o lock ativo durante a leitura e o envio.
+     * Atualizado para ser parametrizavel via variavel de ambiente
      */
-    @Scheduled(fixedDelay = 60*1000)
+    @Scheduled( fixedDelayString = "${app.outbox.processing.delay:60000}")
     @Transactional
     public void processarEventosOutbox() {
 
