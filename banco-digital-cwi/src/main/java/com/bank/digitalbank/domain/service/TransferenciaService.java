@@ -47,7 +47,7 @@ public class TransferenciaService {
             contaOrigem = adquirirContaComLock(origemId);
         }
 
-        // 2. Executa as operações de negócio encapsuladas no Modelo (Validação de saldo ocorre aqui)
+        // 2.  Executa as operações de negócio encapsuladas no Modelo (Validação de saldo ocorre aqui)
         contaOrigem.debitar(valor);
         contaDestino.creditar(valor);
 
