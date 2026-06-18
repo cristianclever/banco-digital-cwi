@@ -2,9 +2,11 @@ package com.bank.digitalbank.domain.repository;
 
 import com.bank.digitalbank.domain.model.Conta;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
@@ -15,6 +17,7 @@ public interface ContaRepository extends JpaRepository<Conta, String> {
      * Garante que nenhuma outra transação altere ou leia este registro simultaneamente.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "1000")})
     @Query("SELECT c FROM Conta c WHERE c.id = :id")
     Optional<Conta> findByIdForUpdate(@Param("id") String id);
 }

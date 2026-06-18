@@ -26,7 +26,7 @@ public class TransferenciaService {
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper; // Jackson para serializar o payload
 
-    @Transactional
+    @Transactional(timeout = 3)
     public void transferir(String origemId, String destinoId, BigDecimal valor) {
         log.info("Iniciando transferência de {} para {} no valor de {}", origemId, destinoId, valor);
 
