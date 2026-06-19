@@ -1,6 +1,7 @@
 package com.bank.digitalbank.consumer;
 
 import com.bank.digitalbank.config.RabbitMQConfig;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -11,11 +12,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificacaoConsumer {
 
+
     /**
      * Consome as mensagens da fila de notificações de forma assíncrona.
      * Simula o disparo de um mecanismo de Push/Email para o cliente final.
      */
     @RabbitListener(queues = RabbitMQConfig.NOTIFICACAO_QUEUE)
+    @Retry(name = "notificationRetry")
     public void consumirNotificacao(String payloadJson) {
         log.info("Consumidor RabbitMQ recebeu nova mensagem para envio de notificação.");
 
