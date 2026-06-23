@@ -56,7 +56,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/v1/contas/CONTA-9990",
+              "raw": "http://localhost:8080/v1/contas/CONTA-001",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -65,7 +65,7 @@
               "path": [
                 "v1",
                 "contas",
-                "CONTA-9990"
+                "CONTA-001"
               ]
             }
           },
@@ -78,7 +78,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"id\": \"CONTA-011\",\r\n  \"nome\": \"Timothee Chalamet\",\r\n  \"email\": \"timothee@cinema.com\",\r\n  \"saldoInicial\": 10000.00\r\n}",
+              "raw": "{\r\n  \"id\": \"CONTA-012\",\r\n  \"nome\": \"Timothee Chalamet\",\r\n  \"email\": \"timothee@cinema.com\",\r\n  \"saldoInicial\": 10000.00\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -108,8 +108,29 @@
         {
           "name": "Transferência com Sucesso",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"contaOrigemId\": \"CONTA-001\",\r\n  \"contaDestinoId\": \"CONTA-002\",\r\n  \"valor\": 4000.00\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/v1/transferencias",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "v1",
+                "transferencias"
+              ]
+            }
           },
           "response": []
         }
